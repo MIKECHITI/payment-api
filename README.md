@@ -1,6 +1,14 @@
 # Virtual Wallet API 💰
 
-A production-ready REST API for a digital wallet system built with Node.js, Express, PostgreSQL, and Prisma. Perfect for fintech interviews and portfolio projects.
+A production-ready full-stack fintech application with atomic transactions, JWT authentication, and comprehensive security. Built with Node.js/Express, Prisma ORM, PostgreSQL, and React + Vite. Perfect for fintech portfolios, interviews, and learning modern payment system architecture.
+
+**Live Features:**
+- ✅ REST API with Swagger/OpenAPI documentation
+- ✅ Full-featured React frontend with user search for recipient lookup
+- ✅ Atomic transactions with idempotency support
+- ✅ Fintech-grade security (bcrypt, rate limiting, CORS, Helmet)
+- ✅ PostgreSQL with Decimal precision for money handling
+- ✅ Comprehensive error handling and input validation
 
 ## Features ✨
 
@@ -8,145 +16,347 @@ A production-ready REST API for a digital wallet system built with Node.js, Expr
 - ✅ **User Authentication** - Register & Login with JWT tokens
 - ✅ **Wallet Management** - Create wallet on signup, check balance, deposit funds
 - ✅ **Money Transfer** - Atomic transactions (deduct + add + log in one operation)
-- ✅ **Transaction History** - Track all sent and received transfers
-- ✅ **Input Validation** - Email, password, amount validation
-- ✅ **Rate Limiting** - Protect against abuse
-- ✅ **Error Handling** - Comprehensive error middleware
+- ✅ **Recipient Search** - Find users by email for safe transfers
+- ✅ **Transaction History** - Track all sent and received transfers with descriptions
+- ✅ **Input Validation** - Email, password strength, amount validation
+- ✅ **Rate Limiting** - Protect against abuse (configurable)
+- ✅ **Error Handling** - Centralized error middleware with proper HTTP status codes
 
-### Fintech Best Practices
-- 🔒 **Atomic Transactions** - Money transfers use database transactions (critical in fintech)
-- 🔐 **JWT Authentication** - Secure token-based auth
-- 🔑 **Password Hashing** - bcryptjs for secure password storage
-- 📊 **Proper Relations** - User → Wallet (1:1), User → Transactions (1:many)
-- ⚡ **Rate Limiting** - Prevent brute force attacks
+### Fintech Security & Best Practices
+- 🔒 **Atomic Transactions** - Database-level consistency (all-or-nothing money transfers)
+- 🔐 **JWT Authentication** - Secure token-based auth with expiration
+- 🔑 **Password Security** - bcryptjs hashing with 10-round salt
+- 📊 **Precise Money Handling** - Prisma Decimal type (prevents float rounding errors)
+- ⚡ **Rate Limiting** - Configurable request throttling
+- 🛡️ **Security Headers** - Helmet.js for OWASP compliance
+- 🔄 **Idempotent Transfers** - Retry-safe with Idempotency-Key support
+- 📈 **Database Indexes** - Optimized queries on sender/receiver lookups
+- 🚀 **CORS Protection** - Configurable allowed origins
 
 ## Tech Stack
 
-| Component | Technology |
-|-----------|------------|
-| Backend | Node.js + Express.js |
-| Database | PostgreSQL |
-| ORM | Prisma |
-| Authentication | JWT |
-| Password Hashing | bcryptjs |
-| Rate Limiting | express-rate-limit |
-| Security | Helmet, CORS |
+| Layer | Technology |
+|-------|------------|
+| **Backend** | Node.js 18+, Express.js 4 |
+| **Database** | PostgreSQL 12+, Prisma ORM 5 |
+| **Frontend** | React 18, Vite 5, Axios |
+| **Authentication** | JWT (jsonwebtoken) |
+| **Security** | bcryptjs, Helmet, express-rate-limit |
+| **API Docs** | Swagger/OpenAPI 3.0 |
+| **Testing** | Jest, Supertest |
 
 ## Project Structure
 
 ```
 payment-api/
-├── frontend/                 # React frontend app
+├── frontend/                          # React + Vite app
 │   ├── src/
+│   │   ├── pages/                    # Dashboard, Transfer, Wallet, History, etc.
+│   │   ├── services/                 # API clients (authService, transactionService, userService)
+│   │   ├── contexts/                 # AuthContext for state management
+│   │   └── components/               # Reusable UI components
 │   ├── package.json
-│   ├── vite.config.js
-│   └── index.html
+│   └── vite.config.js
 ├── src/
-│   ├── app.js                 # Express app setup
-│   ├── server.js              # Server bootstrap
-│   ├── controllers/           # Request handlers
-│   │   ├── authController.js
-│   │   ├── walletController.js
-│   │   └── transactionController.js
-│   ├── services/              # Business logic
+│   ├── app.js                         # Express app configuration
+│   ├── server.js                      # Server bootstrap with JWT_SECRET guard
+│   ├── controllers/                   # HTTP request handlers
+│   │   ├── authController.js         # Register/Login
+│   │   ├── walletController.js       # Balance/Deposit
+│   │   ├── transactionController.js  # Transfer/History
+│   │   └── userController.js         # Search users by email
+│   ├── services/                      # Business logic & DB transactions
 │   │   ├── authService.js
 │   │   ├── walletService.js
-│   │   └── transactionService.js
-│   ├── routes/                # API routes
+│   │   ├── transactionService.js
+│   │   └── userService.js
+│   ├── routes/                        # API route definitions
 │   │   ├── authRoutes.js
 │   │   ├── walletRoutes.js
-│   │   └── transactionRoutes.js
-│   ├── middleware/            # Express middleware
-│   │   ├── authMiddleware.js
-│   │   └── errorMiddleware.js
-│   ├── utils/                 # Utilities
-│   │   ├── generateToken.js
-│   │   └── validators.js
+│   │   ├── transactionRoutes.js
+│   │   └── userRoutes.js
+│   ├── middleware/                    # Express middleware
+│   │   ├── authMiddleware.js          # JWT verification with error differentiation
+│   │   ├── errorMiddleware.js         # Centralized error handling
+│   │   └── rateLimiter.js
+│   ├── lib/
+│   │   └── prisma.js                  # Shared Prisma client
+│   ├── utils/
+│   │   ├── generateToken.js           # JWT utility functions
+│   │   └── validators.js              # Input validation helpers
+│   ├── config/
+│   │   ├── db.js                      # Database config
+│   │   └── swagger.js                 # OpenAPI specifications
 │   └── prisma/
-│       └── schema.prisma
-├── .env
+│       └── schema.prisma              # Data schema
+├── .env                               # Environment variables (add your own)
+├── .env.example                       # Template for .env
 ├── package.json
 └── README.md
 ```
 
-## Frontend Setup
+## Frontend Features
 
-The frontend is a React + Vite app located in `frontend/`.
+The frontend is a React + Vite app with secure authentication context and real-time API integration.
 
-### Start the frontend
+### Pages
+- **Login** - User authentication with JWT persistence
+- **Register** - New user signup with wallet creation
+- **Dashboard** - Overview of balance and recent transactions
+- **Wallet** - Check balance and deposit funds
+- **Transfer** - Search recipients by email, enter amount & optional description
+- **History** - View all sent and received transactions
+
+### Setup
+```bash
+cd frontend
+npm install
+npm run dev        # Start dev server (http://localhost:5173)
+npm run build      # Production build
+```
+
+## Database Schema
+
+### Users (with 1:1 Wallet and 1:many Transactions)
+```prisma
+model User {
+  id                    Int
+  email                 String @unique
+  name                  String
+  passwordHash          String
+  wallet                Wallet?
+  sentTransactions      Transaction[] @relation("sender")
+  receivedTransactions  Transaction[] @relation("receiver")
+  createdAt             DateTime
+  updatedAt             DateTime
+}
+```
+
+### Wallets (1:1 with Users)
+```prisma
+model Wallet {
+  id        Int
+  userId    Int @unique
+  balance   Decimal @default(0)  # Precise money handling
+  createdAt DateTime
+  updatedAt DateTime
+}
+```
+
+### Transactions (with atomic operations, descriptions, and idempotency)
+```prisma
+model Transaction {
+  id              Int
+  senderId        Int
+  receiverId      Int
+  amount          Decimal
+  status          String @default("completed")
+  reference       String @unique  # Unique per transfer
+  idempotencyKey  String @unique  # For retry safety
+  description     String?         # Payment note
+  createdAt       DateTime
+  
+  @@index([senderId])    # Query optimization
+  @@index([receiverId])
+}
+```
+
+## API Endpoints
+
+### Authentication
+- `POST /api/auth/register` - Create user account
+- `POST /api/auth/login` - Get JWT token
+
+### Wallet
+- `GET /api/wallet/balance` - Check wallet balance
+- `POST /api/wallet/deposit` - Add funds to wallet
+
+### Transactions
+- `POST /api/transactions/transfer` - Send money (with optional idempotency key)
+- `GET /api/transactions/history` - Get all transactions
+
+### User Search
+- `GET /api/users/search?email=example` - Find users by email (authenticated)
+
+**Full Documentation:** Visit `http://localhost:5000/api-docs` for interactive Swagger UI.
+
+## Setup & Installation
+
+### Prerequisites
+- **Node.js** 18+ ([download](https://nodejs.org))
+- **PostgreSQL** 12+ ([download](https://www.postgresql.org))
+- **npm** (comes with Node.js)
+
+### 1. Clone Repository
+```bash
+git clone https://github.com/MIKECHITI/payment-api.git
+cd payment-api
+```
+
+### 2. Backend Setup
+```bash
+npm install
+
+# Create .env file
+cp .env.example .env
+
+# Add to .env:
+DATABASE_URL="postgresql://user:password@localhost:5432/payment_api"
+JWT_SECRET="your-super-secret-key-min-32-chars"
+PORT=5000
+NODE_ENV=development
+ALLOWED_ORIGIN="http://localhost:5173"
+RATE_LIMIT_WINDOW=15
+RATE_LIMIT_MAX_REQUESTS=100
+```
+
+### 3. Database Setup
+```bash
+# Generate Prisma client
+npm run prisma:generate
+
+# Create and migrate database
+npm run prisma:push
+
+# (Optional) Seed with test data
+npm run prisma:seed
+```
+
+### 4. Start Backend
+```bash
+npm run dev      # Development with nodemon
+npm start        # Production
+```
+
+Backend runs on `http://localhost:5000`
+
+### 5. Start Frontend
 ```bash
 cd frontend
 npm install
 npm run dev
 ```
 
-### Frontend routes
-- `/login` - login page
-- `/register` - signup page
-- `/dashboard` - authenticated dashboard
-- `/wallet` - wallet balance and deposit
-- `/transfer` - send money
-- `/history` - transaction history
+Frontend runs on `http://localhost:5173`
 
-## Database Schema
+## Testing
 
-### Users Table
-```sql
-users {
-  id            Int     @id @default(autoincrement())
-  email         String  @unique
-  name          String
-  password_hash String
-  created_at    DateTime
-  updated_at    DateTime
-}
-```
-
-### Wallets Table (1:1 with Users)
-```sql
-wallets {
-  id         Int      @id @default(autoincrement())
-  user_id    Int      @unique
-  balance    Float    @default(0.0)
-  created_at DateTime
-  updated_at DateTime
-}
-```
-
-### Transactions Table
-```sql
-transactions {
-  id          Int      @id @default(autoincrement())
-  sender_id   Int
-  receiver_id Int
-  amount      Float
-  status      String   @default("completed")
-  reference   String   @unique (for tracking)
-  created_at  DateTime
-}
-```
-
-## API Documentation
-
-**Interactive Swagger UI:** Visit `http://localhost:5000/api-docs` for interactive API documentation where you can test all endpoints directly from your browser.
-
-**See:** [SWAGGER.md](SWAGGER.md) for complete Swagger documentation guide with examples and troubleshooting.
-
-**Testing Guide:** [TESTING.md](TESTING.md) - Run comprehensive test suite with 40+ test cases.
-
-
-
-### 1. Prerequisites
-- Node.js 16+
-- PostgreSQL 12+
-- npm
-
-### 2. Clone & Install
+Run comprehensive test suite:
 ```bash
-git clone <repo-url>
-cd payment-api
-npm install
+npm test              # Run all tests
+npm run test:watch   # Watch mode
 ```
+
+See [TESTING.md](TESTING.md) for detailed test documentation and examples.
+
+## API Documentation & Examples
+
+### Interactive Swagger UI
+Visit `http://localhost:5000/api-docs` to:
+- View all endpoint schemas
+- Test requests with sample data
+- See response formats
+- Copy curl commands
+
+See [SWAGGER.md](SWAGGER.md) for complete guide.
+
+## Environment Variables
+
+```bash
+# Database
+DATABASE_URL="postgresql://user:password@localhost:5432/payment_api"
+
+# JWT
+JWT_SECRET="min-32-character-random-secret-key"  # Required for startup
+JWT_EXPIRE="7d"
+
+# Server
+PORT=5000
+NODE_ENV=development|production
+
+# CORS
+ALLOWED_ORIGIN="http://localhost:5173"  # Frontend URL
+
+# Rate Limiting
+RATE_LIMIT_WINDOW=15       # Minutes
+RATE_LIMIT_MAX_REQUESTS=100  # Requests per window
+```
+
+## Security Features
+
+✅ **Password Security** - 10-round bcrypt hashing  
+✅ **Token Expiration** - JWT expiry control  
+✅ **Atomic Transactions** - Database-level consistency  
+✅ **Input Validation** - Email, password, amount checks  
+✅ **Rate Limiting** - Configurable throttling  
+✅ **CORS Protection** - Whitelist allowed origins  
+✅ **Security Headers** - Helmet.js defaults  
+✅ **Error Sanitization** - No sensitive data in responses  
+✅ **Decimal Precision** - Prevents float rounding errors  
+✅ **Idempotency** - Safe retry mechanism for transfers  
+
+## Common Issues & Troubleshooting
+
+**JWT_SECRET not set:**
+```
+Error: FATAL: JWT_SECRET is not set in environment
+```
+Solution: Add `JWT_SECRET` to `.env` before starting server.
+
+**Database connection fails:**
+```
+Error: connect ECONNREFUSED 127.0.0.1:5432
+```
+Solution: Ensure PostgreSQL is running on port 5432. Check `DATABASE_URL` in `.env`.
+
+**Port 5000 already in use:**
+```bash
+# Use different port
+PORT=3000 npm run dev
+```
+
+See [LAUNCH.md](LAUNCH.md) and [QUICKSTART.md](QUICKSTART.md) for more details.
+
+## Project Files
+
+- 📄 [STRUCTURE.md](STRUCTURE.md) - Detailed project architecture
+- 📄 [LAUNCH.md](LAUNCH.md) - Complete startup guide
+- 📄 [QUICKSTART.md](QUICKSTART.md) - 5-minute quick start
+- 📄 [SWAGGER.md](SWAGGER.md) - API documentation guide
+- 📄 [TESTING.md](TESTING.md) - Test suite documentation
+- 📄 [PROJECT_COMPLETE.md](PROJECT_COMPLETE.md) - Feature checklist
+
+## GitHub Topics
+
+Add these topics to your repository for better discoverability:
+
+`payment-api` `fintech` `rest-api` `express` `nodejs` `react` `prisma` `postgresql` `jwt-authentication` `full-stack` `atomic-transactions` `security`
+
+## Learning Path
+
+This project covers:
+1. **REST API Design** - Resource-oriented endpoints
+2. **Database Design** - Relationships, transactions, indexes
+3. **Authentication** - JWT token lifecycle
+4. **Security** - Input validation, password hashing, CORS
+5. **Error Handling** - Centralized middleware pattern
+6. **Frontend Integration** - React with authenticated API calls
+7. **Testing** - Unit and integration test patterns
+
+Perfect for fintech interviews, portfolio demonstration, or learning production API patterns.
+
+## License
+
+ISC
+
+## Author
+
+**MIKECHITI** - [GitHub](https://github.com/MIKECHITI)
+
+---
+
+**Questions or Issues?** Open an issue on [GitHub Issues](https://github.com/MIKECHITI/payment-api/issues)
+
 
 ### 3. Configure Database
 Create `.env` file:
