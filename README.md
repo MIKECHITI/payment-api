@@ -645,14 +645,4 @@ ISC
 
 ## Author
 
-Built for fintech internship preparation
-
----
-
-**Ready for your internship interview!** This project demonstrates:
-- Full-stack API development
-- Database design for financial systems
-- Authentication & authorization
-- Atomic transactions
-- Professional code organization
-- Error handling & validation
+Built for fintech
